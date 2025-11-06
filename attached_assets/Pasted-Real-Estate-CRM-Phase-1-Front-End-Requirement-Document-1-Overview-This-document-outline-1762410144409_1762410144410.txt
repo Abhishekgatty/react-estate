@@ -1,0 +1,74 @@
+Real Estate CRM – Phase 1 (Front-End Requirement Document) 
+
+1. Overview 
+
+This document outlines the front-end requirements for the Real Estate CRM mobile application to be developed using React Native. The application will serve as a CRM tool for managing property listings, enquiries, reminders, and productivity reports. 
+
+2. Authentication Module 
+
+- Login Screen 
+  • Login via phone number. 
+  • OTP verification. 
+  • Save user sessions using Firebase/Auth API. 
+
+3. Dashboard / Home Screen 
+
+- Overview of total enquiries, follow-ups, and pending reminders. 
+- Quick links to Buy, Sell, Enquiries, Reminders, and Reports. 
+- Optional notification icon for missed follow-ups or new leads. 
+
+4. Products Module 
+
+Tabs: 
+• Buy – List of available properties for sale, with search and filters. 
+• Sell – List of properties added by sellers. 
+• Property Details Screen – Display property information, images, and contact details. 
+• Add Property – Option for sellers to list a new property. 
+
+5. Enquiries (Lead Management System) 
+
+A. Manual Entry 
+• Option to create leads manually for Buy or Sell. 
+ 
+Buy Form Fields: 
+  - Date 
+  - Name 
+  - Referred By 
+  - Mobile Number 
+  - Location 
+  - Budget 
+  - Remarks 
+ 
+Sell Form Fields: 
+  - Date 
+  - Name 
+  - Referred By 
+  - Mobile Number 
+  - Location 
+  - Selling Rate 
+  - Remarks 
+ 
+B. Auto + Call Log Entry 
+• Select phone contact or recent call log. 
+• Prefill number and name (if available). 
+• Choose Buy/Sell and create an auto lead record. 
+
+6. Reminders Module 
+
+- Calendar view for local events and follow-ups. 
+- Add reminders with date and time. 
+- Integrate local notifications and optional Email/WhatsApp alerts. 
+- Highlight missed or overdue reminders. 
+
+7. Productivity / Reports Module 
+
+- Summary reports for total leads, follow-ups completed, and conversions. 
+- Display graphical or tabular format. 
+
+8. Settings / Profile Module 
+
+- View and edit profile details. 
+- Manage notification preferences (Email/WhatsApp/Local). 
+- Logout option. 
+
+ 
