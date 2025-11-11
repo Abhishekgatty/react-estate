@@ -3,7 +3,7 @@ import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
-
+import { Menu } from "lucide-react";
 import Login from "@/pages/Login";
 import Dashboard from "@/pages/Dashboard";
 import Properties from "@/pages/Properties";
@@ -15,6 +15,9 @@ import NotFound from "@/pages/not-found";
 
 import AppHeader from "@/components/AppHeader";
 import BottomNav from "@/components/BottomNav";
+import { Link } from "react-router-dom";
+import React, { useEffect } from "react";
+import AuthCallbackPage from "@/pages/AuthCallbackPage";
 
 function Router() {
   return (
@@ -50,31 +53,78 @@ function Router() {
           <Settings />
         </AppLayout>
       </Route>
-      <Route component={NotFound} />
+      <Route path="/auth/callback" component={AuthCallbackPage} />
     </Switch>
   );
 }
 
-function AppLayout({ children }: { children: React.ReactNode }) {
+
+import { useState } from "react";
+import Sidebar from "./pages/Sidebar";
+
+export function AppLayout({ children }: { children: React.ReactNode }) {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  const toggleSidebar = () => {
+    setSidebarOpen(!sidebarOpen);
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-background">
+      {/* Header at top */}
       <AppHeader
-        title="Real Estate CRM"
+        title={
+          <div className="flex items-center gap-2 w-full">
+            <div
+              className="h-5 w-5 cursor-pointer text-gray-700 hover:text-blue-600"
+              onClick={toggleSidebar}
+            />
+            <Link
+              to="/"
+              onClick={() => setSidebarOpen(false)}
+              className="text-2xl font-bold text-blue-600 hover:text-blue-700 transition"
+            >
+              Real Estate CRM
+            </Link>
+          </div>
+        }
         notificationCount={3}
         onNotificationClick={() => console.log("Notifications clicked")}
-        onProfileClick={() => window.location.href = "/settings"}
+        onProfileClick={() => (window.location.href = "/settings")}
       />
-      <main className="flex-1 overflow-auto pb-20 md:pb-6">
-        <div className="container mx-auto p-4 md:p-6">
-          {children}
+
+      {/* Body layout — sidebar + main content */}
+      <div className="flex flex-1">
+        {/* Sidebar (visible on desktop, toggle on mobile) */}
+        <div className="hidden md:block">
+          <Sidebar />
         </div>
-      </main>
+
+        {/* Mobile Sidebar overlay */}
+        {sidebarOpen && (
+          <Sidebar isMobile onClose={() => setSidebarOpen(false)} />
+        )}
+
+        {/* Main content */}
+       <main className="flex-1 overflow-y-auto bg-gray-50 p-4 md:p-6">
+
+          <div className="container mx-auto">{children}</div>
+        </main>
+      </div>
+
+      {/* Bottom navigation (mobile only) */}
       <BottomNav />
     </div>
   );
 }
 
+
 export default function App() {
+  useEffect(() => {
+    console.log("Supabase URL:", import.meta.env.VITE_SUPABASE_URL);
+    console.log("Supabase Key:", import.meta.env.VITE_SUPABASE_KEY);
+  }, []);
+
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>

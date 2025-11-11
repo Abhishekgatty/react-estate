@@ -24,7 +24,7 @@ export default function Reports() {
     <div className="space-y-6">
       <div className="flex items-center justify-between gap-4 flex-wrap">
         <div>
-          <h2 className="text-2xl md:text-3xl font-bold">Productivity Reports</h2>
+          <h2 className="text-2xl md:text-3xl font-bold text-primary">Productivity Reports</h2>
           <p className="text-muted-foreground">Track your performance and analytics</p>
         </div>
         <Select defaultValue="6months">

@@ -1,0 +1,256 @@
+// import React, { useState } from "react";
+// import { Link } from "react-router-dom";
+// import {
+//   X,
+//   Building2,
+//   LayoutDashboard,
+//   Home,
+//   MessageSquare,
+//   BarChart3,
+//   Settings,
+//   LogOut,
+//   ChevronLeft,
+//   ChevronRight,
+// } from "lucide-react";
+// import { supabase } from "../supabaseClient";
+
+// interface SidebarProps {
+//   onClose?: () => void;
+//   isMobile?: boolean;
+// }
+
+// const Sidebar = ({ onClose, isMobile = false }: SidebarProps) => {
+//   const [collapsed, setCollapsed] = useState(false); // 👈 collapsed state
+
+//   const handleLogout = async () => {
+//     const { error } = await supabase.auth.signOut();
+//     if (error) console.error("Logout error:", error.message);
+//     else window.location.href = "/login";
+//     if (onClose) onClose();
+//   };
+
+//   return (
+//     <>
+//       {/* Overlay (for mobile) */}
+//       {isMobile && (
+//         <div
+//           className="fixed inset-0 z-40 bg-black/30 backdrop-blur-sm md:hidden"
+//           onClick={onClose}
+//         />
+//       )}
+
+//       {/* Sidebar */}
+//       <div
+//         className={`${
+//           isMobile
+//             ? "fixed top-0 left-0 z-50 h-full w-[80%] max-w-xs bg-white shadow-xl transition-transform"
+//             : `hidden md:flex md:flex-col h-screen ${
+//                 collapsed ? "md:w-20" : "md:w-64"
+//               } bg-white shadow-sm transition-all duration-300`
+//         }`}
+//       >
+//         {/* Collapse Button */}
+//         {!isMobile && (
+//           <button
+//             onClick={() => setCollapsed(!collapsed)}
+//             className="absolute top-4 right-[-12px] bg-white border rounded-full shadow p-1 hover:bg-gray-100"
+//           >
+//             {collapsed ? (
+//               <ChevronRight className="h-4 w-4 text-gray-600" />
+//             ) : (
+//               <ChevronLeft className="h-4 w-4 text-gray-600" />
+//             )}
+//           </button>
+//         )}
+
+//         {/* Sidebar content */}
+//         <div className="h-full flex flex-col p-4">
+//           {/* Logo */}
+//           <div className="mb-8 flex items-center gap-2 justify-center md:justify-start">
+//             <Building2 className="h-7 w-7 text-blue-600" />
+//             {!collapsed && (
+//               <Link
+//                 to="/"
+//                 onClick={onClose}
+//                 className="text-lg font-bold text-blue-600 hover:text-blue-700"
+//               >
+//                 Real Estate CRM
+//               </Link>
+//             )}
+//           </div>
+
+//           {/* Navigation */}
+//           <nav className="flex flex-col space-y-2">
+//             {[
+//               { to: "/", icon: LayoutDashboard, label: "Dashboard" },
+//               { to: "/properties", icon: Home, label: "Properties" },
+//               { to: "/enquiries", icon: MessageSquare, label: "Enquiries" },
+//               { to: "/reports", icon: BarChart3, label: "Reports" },
+//               { to: "/settings", icon: Settings, label: "Settings" },
+//             ].map(({ to, icon: Icon, label }) => (
+//               <Link
+//                 key={to}
+//                 to={to}
+//                 onClick={onClose}
+//                 className="flex items-center gap-3 px-3 py-2 rounded-md text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition"
+//               >
+//                 <Icon className="h-5 w-5" />
+//                 {!collapsed && <span>{label}</span>}
+//               </Link>
+//             ))}
+//           </nav>
+
+//           {/* Logout */}
+//           <div className="mt-auto pt-4 border-t border-gray-200">
+//             <button
+//               onClick={handleLogout}
+//               className="flex items-center gap-3 w-full px-3 py-2 rounded-md text-red-600 hover:bg-red-50 hover:text-red-700 transition"
+//             >
+//               <LogOut className="h-5 w-5" />
+//               {!collapsed && <span>Logout</span>}
+//             </button>
+//           </div>
+//         </div>
+//       </div>
+//     </>
+//   );
+// };
+
+// export default Sidebar;
+
+
+
+import React, { useState } from "react";
+import { Link, useLocation } from "react-router-dom";
+import {
+  X,
+  Building2,
+  LayoutDashboard,
+  Home,
+  MessageSquare,
+  BarChart3,
+  Settings,
+  LogOut,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
+import { supabase } from "../supabaseClient";
+
+interface SidebarProps {
+  onClose?: () => void;
+  isMobile?: boolean;
+}
+
+const Sidebar = ({ onClose, isMobile = false }: SidebarProps) => {
+  const [collapsed, setCollapsed] = useState(false); // start expanded
+  const location = useLocation(); // get current route
+
+  const handleLogout = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) console.error("Logout error:", error.message);
+    else window.location.href = "/login";
+    if (onClose) onClose();
+  };
+
+  const handleLinkClick = () => {
+    // Collapse sidebar when a page is clicked
+    setCollapsed(true);
+    if (onClose) onClose();
+  };
+
+  return (
+    <>
+      {/* Overlay for mobile */}
+      {isMobile && (
+        <div
+          className="fixed inset-0 z-40 bg-black/30 backdrop-blur-sm md:hidden"
+          onClick={onClose}
+        />
+      )}
+
+      {/* Sidebar container */}
+      <div
+        className={`${
+          isMobile
+            ? "fixed top-0 left-0 z-50 h-full w-[80%] max-w-xs bg-white shadow-xl transition-transform"
+            : `hidden md:flex md:flex-col h-screen bg-white shadow-sm transition-all duration-300 ${
+                collapsed ? "md:w-20" : "md:w-64"
+              }`
+        }`}
+      >
+        {/* Toggle button (desktop only) */}
+        {!isMobile && (
+          <button
+            onClick={() => setCollapsed(!collapsed)}
+            className="absolute top-4 right-[-10px] bg-white border rounded-full shadow p-1 hover:bg-gray-100"
+          >
+            {collapsed ? (
+              <ChevronRight className="h-4 w-4 text-gray-600" />
+            ) : (
+              <ChevronLeft className="h-4 w-4 text-gray-600" />
+            )}
+          </button>
+        )}
+
+        {/* Sidebar content */}
+        <div
+          className="h-full flex flex-col p-4 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent"
+          onMouseEnter={() => setCollapsed(false)}
+          onMouseLeave={() => setCollapsed(true)}
+        >
+          {/* Logo Section */}
+          <div
+            className="mb-8 flex items-center justify-center md:justify-start gap-2 cursor-pointer"
+            onClick={() => setCollapsed(false)}
+          >
+            <Building2 className="h-7 w-7 text-blue-600" />
+            {!collapsed && (
+              <span className="text-lg font-bold text-blue-600">
+                Real Estate CRM
+              </span>
+            )}
+          </div>
+
+          {/* Navigation Links */}
+          <nav className="flex flex-col space-y-2">
+            {[
+              { to: "/", icon: LayoutDashboard, label: "Dashboard" },
+              { to: "/properties", icon: Home, label: "Properties" },
+              { to: "/enquiries", icon: MessageSquare, label: "Enquiries" },
+              { to: "/reminders", icon: MessageSquare, label: "Reminder" },
+              { to: "/reports", icon: BarChart3, label: "Reports" },
+              { to: "/settings", icon: Settings, label: "Settings" },
+            ].map(({ to, icon: Icon, label }) => (
+              <Link
+                key={to}
+                to={to}
+                onClick={handleLinkClick}
+                className={`flex items-center gap-3 px-3 py-2 rounded-md transition ${
+                  location.pathname === to
+                    ? "bg-blue-50 text-blue-600 font-medium"
+                    : "text-gray-700 hover:bg-blue-50 hover:text-blue-600"
+                }`}
+              >
+                <Icon className="h-5 w-5" />
+                {!collapsed && <span>{label}</span>}
+              </Link>
+            ))}
+          </nav>
+
+          {/* Logout Button */}
+          {/* <div className="mt-auto pt-4 border-t border-gray-200">
+            <button
+              onClick={handleLogout}
+              className="flex items-center gap-3 w-full px-3 py-2 rounded-md text-red-600 hover:bg-red-50 hover:text-red-700 transition"
+            >
+              <LogOut className="h-5 w-5" />
+              {!collapsed && <span>Logout</span>}
+            </button>
+          </div> */}
+        </div>
+      </div>
+    </>
+  );
+};
+
+export default Sidebar;

@@ -2,7 +2,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Clock, User, Check, Pencil, Trash2 } from "lucide-react";
-
+import { supabase } from "../supabaseClient";
 interface ReminderCardProps {
   id: string;
   title: string;
@@ -31,6 +31,9 @@ export default function ReminderCard({
     completed: "secondary",
     overdue: "destructive"
   } as const;
+
+
+
 
   return (
     <Card className={status === "completed" ? "opacity-60" : ""}>

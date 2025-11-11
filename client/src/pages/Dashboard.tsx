@@ -2,14 +2,32 @@ import StatCard from "@/components/StatCard";
 import QuickActionCard from "@/components/QuickActionCard";
 import { Users, Bell, Home, TrendingUp, PlusCircle, BarChart3 } from "lucide-react";
 import { useLocation } from "wouter";
+import { useEffect } from "react";
+import { supabase } from "../supabaseClient";
 
 export default function Dashboard() {
   const [, setLocation] = useLocation();
 
+  useEffect(() => {
+    async function fetchUser() {
+      const { data: { session }, error } = await supabase.auth.getSession();
+      if (error) {
+        console.error("Error fetching session:", error.message);
+      } else if (session?.user) {
+        console.log("User UID:", session.user.id); // <-- UID
+        console.log("User Email:", session.user.email);
+      } else {
+        console.log("No active session");
+      }
+    }
+
+    fetchUser();
+  }, []);
+
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl md:text-3xl font-bold">Dashboard</h2>
+        <h2 className="text-2xl md:text-3xl font-bold text-primary">Dashboard</h2>
         <p className="text-muted-foreground">Welcome back! Here's your overview</p>
       </div>
 

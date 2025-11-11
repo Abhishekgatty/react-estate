@@ -32,11 +32,11 @@ export default function PropertyCard({
 }: PropertyCardProps) {
   return (
     <Card className="overflow-hidden hover-elevate transition-all">
-      <div className="relative aspect-[4/3]">
+      <div className="relative aspect-[4/3] pl-5">
         <img src={image} alt={title} className="object-cover w-full h-full" />
         <Badge 
           className="absolute top-3 right-3"
-          variant={type === "Buy" ? "default" : "secondary"}
+          variant={type === "Buy" ? "default" : "default"}
           data-testid={`badge-type-${id}`}
         >
           {type}
