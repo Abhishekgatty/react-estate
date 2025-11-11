@@ -281,6 +281,7 @@ export default function AddPropertyForm({
 }: AddPropertyFormProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [images, setImages] = useState<File[]>([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     title: "",
     location: "",
@@ -297,6 +298,8 @@ export default function AddPropertyForm({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+     setIsSubmitting(true);
 
     try {
       // Await the user object
@@ -386,6 +389,9 @@ export default function AddPropertyForm({
       console.error(err);
       alert("⚠️ Unexpected error occurred.");
     }
+    finally {
+    setIsSubmitting(false); // Re-enable button after operation
+  }
   };
 
   const updateField = (field: string, value: string) => {
@@ -615,13 +621,15 @@ export default function AddPropertyForm({
                 Cancel
               </Button>
             )}
-            <Button
-              type="submit"
-              className="flex-1"
-              data-testid="button-submit"
-            >
-              Add Property
-            </Button>
+         <Button
+  type="submit"
+  className="flex-1"
+  data-testid="button-submit"
+  disabled={isSubmitting} // ✅ Disable while submitting
+>
+  {isSubmitting ? "Adding..." : "Add Property"}
+</Button>
+
           </div>
         </form>
       </CardContent>

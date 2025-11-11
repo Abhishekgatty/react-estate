@@ -177,68 +177,227 @@
 // }
 
 
-import { useState, useEffect } from "react";
+// import { useState, useEffect } from "react";
+// import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+// import { Button } from "@/components/ui/button";
+// import PropertyCard from "@/components/PropertyCard";
+// import PropertyFilter from "@/components/PropertyFilter";
+// import AddPropertyForm from "@/components/AddPropertyForm";
+// import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+// import { Plus } from "lucide-react";
+// import { supabase } from "@/supabaseClient";
+
+// export default function Properties() {
+//   const [showAddForm, setShowAddForm] = useState(false);
+//   const [activeTab, setActiveTab] = useState("all");
+//   const [properties, setProperties] = useState<any[]>([]);
+//   const [loading, setLoading] = useState(true);
+
+//   const handleFilter = (filters: any) => {
+//     console.log("Filters applied:", filters);
+//   };
+
+//   const handleAddProperty = (data: any) => {
+//     console.log("Property added:", data);
+//     setShowAddForm(false);
+//     fetchProperties(); // refresh list after adding
+//   };
+
+//   // Fetch properties from Supabase
+//   const fetchProperties = async () => {
+//     setLoading(true);
+//     const { data, error } = await supabase
+//       .from("properties")
+//       .select("*")
+//       .order("created_at", { ascending: false });
+
+//     if (error) {
+//       console.error("Error fetching properties:", error.message);
+//     } else {
+//       // Map each property to fix images & listing type for PropertyCard
+//       const formatted = (data || []).map((p: any) => ({
+//         ...p,
+//         image: p.images?.[0] || "/placeholder.png", // first image or fallback
+//         type: p.listing_type === "sell" ? "Sell" : "Buy",
+//         price: `$${Number(p.price).toLocaleString()}`,
+//       }));
+//       setProperties(formatted);
+//     }
+//     setLoading(false);
+//   };
+
+//   useEffect(() => {
+//     fetchProperties();
+//   }, []);
+
+//   const buyProperties = properties.filter(p => p.type === "Buy");
+//   const sellProperties = properties.filter(p => p.type === "Sell");
+
+//   return (
+//     <div className="space-y-6">
+//       <div className="flex items-center justify-between gap-4 flex-wrap">
+//         <div>
+//           <h2 className="text-2xl md:text-3xl font-bold text-primary">Properties</h2>
+//           <p className="text-muted-foreground">Browse and manage property listings</p>
+//         </div>
+//         <Button onClick={() => setShowAddForm(true)} data-testid="button-add-property">
+//           <Plus className="h-4 w-4 mr-2" />
+//           Add Property
+//         </Button>
+//       </div>
+
+//       <PropertyFilter onFilter={handleFilter} />
+
+//       {loading ? (
+//         <p>Loading properties...</p>
+//       ) : (
+//         <Tabs value={activeTab} onValueChange={setActiveTab}>
+//           <TabsList className="grid w-full grid-cols-3 max-w-md">
+//             <TabsTrigger value="all" data-testid="tab-all">All</TabsTrigger>
+//             <TabsTrigger value="buy" data-testid="tab-buy">Buy</TabsTrigger>
+//             <TabsTrigger value="sell" data-testid="tab-sell">Sell</TabsTrigger>
+//           </TabsList>
+
+//           <TabsContent value="all" className="mt-6">
+//             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+//               {properties.map(property => (
+//                 <PropertyCard
+//                   key={property.id}
+//                   {...property}
+//                   onView={(id) => console.log("View property:", id)}
+//                   onContact={(id) => console.log("Contact for property:", id)}
+//                 />
+//               ))}
+//             </div>
+//           </TabsContent>
+
+//           <TabsContent value="buy" className="mt-6">
+//             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+//               {buyProperties.map(property => (
+//                 <PropertyCard
+//                   key={property.id}
+//                   {...property}
+//                   onView={(id) => console.log("View property:", id)}
+//                   onContact={(id) => console.log("Contact for property:", id)}
+//                 />
+//               ))}
+//             </div>
+//           </TabsContent>
+
+//           <TabsContent value="sell" className="mt-6">
+//             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+//               {sellProperties.map(property => (
+//                 <PropertyCard
+//                   key={property.id}
+//                   {...property}
+//                   onView={(id) => console.log("View property:", id)}
+//                   onContact={(id) => console.log("Contact for property:", id)}
+//                 />
+//               ))}
+//             </div>
+//           </TabsContent>
+//         </Tabs>
+//       )}
+
+//       <Dialog open={showAddForm} onOpenChange={setShowAddForm}>
+//         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+//           <DialogHeader>
+//             <DialogTitle>Add New Property</DialogTitle>
+//           </DialogHeader>
+//           <AddPropertyForm
+//             onSubmit={handleAddProperty}
+//             onCancel={() => setShowAddForm(false)}
+//           />
+//         </DialogContent>
+//       </Dialog>
+//     </div>
+//   );
+// }
+
+
+
+
+import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
 import PropertyCard from "@/components/PropertyCard";
-import PropertyFilter from "@/components/PropertyFilter";
+import PropertyList, { Property } from "@/components/PropertyFilter";
 import AddPropertyForm from "@/components/AddPropertyForm";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Plus } from "lucide-react";
-import { supabase } from "@/supabaseClient";
+
+interface PropertyCardProps {
+  id: string;
+  image: string;
+  title: string;
+  location: string;
+  price: string; // formatted price
+  type: string; // Buy / Sell
+  bedrooms: number;
+  bathrooms: number;
+  listing_type: string;
+  area: number; // area in sqft
+  onView: (id: string) => void;
+  onContact: (id: string) => void;
+}
 
 export default function Properties() {
   const [showAddForm, setShowAddForm] = useState(false);
   const [activeTab, setActiveTab] = useState("all");
-  const [properties, setProperties] = useState<any[]>([]);
+  const [filteredProperties, setFilteredProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const handleFilter = (filters: any) => {
-    console.log("Filters applied:", filters);
+  // Receive filtered data from PropertyList
+  const handleFiltered = (data: Property[]) => {
+    setFilteredProperties(data);
+    setLoading(false);
   };
+
+  // Tab-specific lists using listing_type
+  const buyProperties = filteredProperties.filter(
+    (p) => p.listing_type?.toLowerCase() === "rent"
+  );
+  const sellProperties = filteredProperties.filter(
+    (p) => p.listing_type?.toLowerCase() === "sell"
+  );
 
   const handleAddProperty = (data: any) => {
     console.log("Property added:", data);
     setShowAddForm(false);
-    fetchProperties(); // refresh list after adding
   };
 
-  // Fetch properties from Supabase
-  const fetchProperties = async () => {
-    setLoading(true);
-    const { data, error } = await supabase
-      .from("properties")
-      .select("*")
-      .order("created_at", { ascending: false });
-
-    if (error) {
-      console.error("Error fetching properties:", error.message);
-    } else {
-      // Map each property to fix images & listing type for PropertyCard
-      const formatted = (data || []).map((p: any) => ({
-        ...p,
-        image: p.images?.[0] || "/placeholder.png", // first image or fallback
-        type: p.listing_type === "sell" ? "Sell" : "Buy",
-        price: `$${Number(p.price).toLocaleString()}`,
-      }));
-      setProperties(formatted);
-    }
-    setLoading(false);
-  };
-
-  useEffect(() => {
-    fetchProperties();
-  }, []);
-
-  const buyProperties = properties.filter(p => p.type === "Buy");
-  const sellProperties = properties.filter(p => p.type === "Sell");
+  // Map Property to PropertyCardProps
+  const mapToCardProps = (property: Property): PropertyCardProps => ({
+    id: property.id,
+    image: property.images?.[0] || "/placeholder.png",
+    title: property.title,
+    location: property.location,
+    price: `₹ ${property.price?.toLocaleString() || "N/A"}`,
+    type:
+      property.listing_type?.toLowerCase() === "sell"
+        ? "Sell"
+        : property.listing_type?.toLowerCase() === "rent"
+        ? "Buy"
+        : "N/A",
+    bedrooms: property.bedrooms,
+    bathrooms: property.bathrooms,
+    listing_type: property.listing_type,
+    area: property.area_sqft,
+    onView: (id) => console.log("View property:", id),
+    onContact: (id) => console.log("Contact for property:", id),
+  });
 
   return (
     <div className="space-y-6">
+      {/* Header */}
       <div className="flex items-center justify-between gap-4 flex-wrap">
         <div>
-          <h2 className="text-2xl md:text-3xl font-bold text-primary">Properties</h2>
-          <p className="text-muted-foreground">Browse and manage property listings</p>
+          <h2 className="text-2xl md:text-3xl font-bold text-primary">
+            Properties
+          </h2>
+          <p className="text-muted-foreground">
+            Browse and manage property listings
+          </p>
         </div>
         <Button onClick={() => setShowAddForm(true)} data-testid="button-add-property">
           <Plus className="h-4 w-4 mr-2" />
@@ -246,59 +405,60 @@ export default function Properties() {
         </Button>
       </div>
 
-      <PropertyFilter onFilter={handleFilter} />
+      {/* Filter Component */}
+      <PropertyList onFiltered={handleFiltered} />
 
-      {loading ? (
-        <p>Loading properties...</p>
-      ) : (
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-3 max-w-md">
-            <TabsTrigger value="all" data-testid="tab-all">All</TabsTrigger>
-            <TabsTrigger value="buy" data-testid="tab-buy">Buy</TabsTrigger>
-            <TabsTrigger value="sell" data-testid="tab-sell">Sell</TabsTrigger>
-          </TabsList>
+      {/* Tabs */}
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <TabsList className="grid w-full grid-cols-3 max-w-md">
+          <TabsTrigger value="all">All</TabsTrigger>
+          <TabsTrigger value="buy">Buy</TabsTrigger>
+          <TabsTrigger value="sell">Sell</TabsTrigger>
+        </TabsList>
 
-          <TabsContent value="all" className="mt-6">
+        {/* All Properties */}
+        <TabsContent value="all" className="mt-6">
+          {loading ? (
+            <p>Loading...</p>
+          ) : filteredProperties.length === 0 ? (
+            <p>No properties found.</p>
+          ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {properties.map(property => (
-                <PropertyCard
-                  key={property.id}
-                  {...property}
-                  onView={(id) => console.log("View property:", id)}
-                  onContact={(id) => console.log("Contact for property:", id)}
-                />
+              {filteredProperties.map((property) => (
+                <PropertyCard key={property.id} {...mapToCardProps(property)} />
               ))}
             </div>
-          </TabsContent>
+          )}
+        </TabsContent>
 
-          <TabsContent value="buy" className="mt-6">
+        {/* Buy Properties */}
+        <TabsContent value="buy" className="mt-6">
+          {buyProperties.length === 0 ? (
+            <p>No properties available for buying.</p>
+          ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {buyProperties.map(property => (
-                <PropertyCard
-                  key={property.id}
-                  {...property}
-                  onView={(id) => console.log("View property:", id)}
-                  onContact={(id) => console.log("Contact for property:", id)}
-                />
+              {buyProperties.map((property) => (
+                <PropertyCard key={property.id} {...mapToCardProps(property)} />
               ))}
             </div>
-          </TabsContent>
+          )}
+        </TabsContent>
 
-          <TabsContent value="sell" className="mt-6">
+        {/* Sell Properties */}
+        <TabsContent value="sell" className="mt-6">
+          {sellProperties.length === 0 ? (
+            <p>No properties available for selling.</p>
+          ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {sellProperties.map(property => (
-                <PropertyCard
-                  key={property.id}
-                  {...property}
-                  onView={(id) => console.log("View property:", id)}
-                  onContact={(id) => console.log("Contact for property:", id)}
-                />
+              {sellProperties.map((property) => (
+                <PropertyCard key={property.id} {...mapToCardProps(property)} />
               ))}
             </div>
-          </TabsContent>
-        </Tabs>
-      )}
+          )}
+        </TabsContent>
+      </Tabs>
 
+      {/* Add Property Dialog */}
       <Dialog open={showAddForm} onOpenChange={setShowAddForm}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
