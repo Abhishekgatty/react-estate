@@ -174,11 +174,6 @@
 //   );
 // }
 
-
-
-
-
-
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -255,7 +250,9 @@ export default function PropertyList({ onFiltered }: PropertyListProps) {
         .not(column, "is", null);
 
       if (!error && data) {
-        const unique = Array.from(new Set(data.map((r: any) => r[column]))).filter(Boolean);
+        const unique = Array.from(
+          new Set(data.map((r: any) => r[column]))
+        ).filter(Boolean);
         return unique.sort();
       }
       return [];
@@ -336,8 +333,8 @@ export default function PropertyList({ onFiltered }: PropertyListProps) {
             Search
           </Button>
           <Button onClick={resetFilters} className="flex-none">
-  Remove Filters
-</Button>
+            Remove Filters
+          </Button>
         </div>
 
         <Collapsible open={isFilterOpen} onOpenChange={setIsFilterOpen}>
@@ -445,7 +442,11 @@ export default function PropertyList({ onFiltered }: PropertyListProps) {
                 </div>
 
                 <div className="flex gap-2 pt-2">
-                  <Button variant="outline" onClick={resetFilters} className="flex-1">
+                  <Button
+                    variant="outline"
+                    onClick={resetFilters}
+                    className="flex-1"
+                  >
                     Reset
                   </Button>
                   <Button onClick={applyFilters} className="flex-1">
@@ -460,4 +461,3 @@ export default function PropertyList({ onFiltered }: PropertyListProps) {
     </div>
   );
 }
-

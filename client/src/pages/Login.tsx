@@ -3,7 +3,7 @@ import PhoneLogin from "@/components/PhoneLogin";
 import OTPVerification from "@/components/OTPVerification";
 import { useLocation } from "wouter";
 
-export default function Login() {
+export default function Loginn() {
   const [, setLocation] = useLocation();
   const [step, setStep] = useState<"phone" | "otp">("phone");
   const [phoneNumber, setPhoneNumber] = useState("");

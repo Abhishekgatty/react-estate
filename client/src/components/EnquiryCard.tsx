@@ -136,6 +136,8 @@
 
 
 
+
+
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -213,7 +215,7 @@ export default function EnquiryCard({
               <Button
                 size="icon"
                 variant="ghost"
-                onClick={() => onDelete(id)} // ✅ calls parent handler
+                onClick={() => onDelete(id)} 
               >
                 <Trash2 className="h-4 w-4" />
               </Button>

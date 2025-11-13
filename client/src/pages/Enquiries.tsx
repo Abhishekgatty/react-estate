@@ -160,6 +160,8 @@
 // after connect supabase
 
 
+
+
 import { useState,useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -186,11 +188,16 @@ interface Enquiry {
 
 
 
+
+
 export default function Enquiries() {
   const [showAddForm, setShowAddForm] = useState(false);
   const [activeTab, setActiveTab] = useState("all");
    const [enquiries, setEnquiries] = useState<Enquiry[]>([]);
   const [loading, setLoading] = useState(false);
+const [showEditForm, setShowEditForm] = useState(false);
+const [selectedEnquiry, setSelectedEnquiry] = useState<Enquiry | null>(null);
+
 
     const fetchEnquiries = async () => {
     setLoading(true);
@@ -223,18 +230,62 @@ export default function Enquiries() {
     setShowAddForm(false);
   };
 
-  const handleDelete = async (id: string) => {
-    const confirmDelete = confirm("Are you sure you want to delete this enquiry?");
-    if (!confirmDelete) return;
+const handleEdit = (id: string) => {
+  console.log("Editing enquiry ID:", id);
+  console.log("Available enquiry IDs:", enquiries.map(e => e.id));
 
-    const { error } = await supabase.from("enquiries").delete().eq("id", id);
-    if (error) {
-      alert("Failed to delete enquiry: " + error.message);
-    } else {
-      setEnquiries(prev => prev.filter(e => e.id !== id));
-      alert("Enquiry deleted successfully!");
-    }
-  };
+  const enquiry = enquiries.find((e) => e.id === id);
+  console.log("Matched enquiry:", enquiry);
+
+  if (enquiry) {
+    setSelectedEnquiry(enquiry);
+    setShowEditForm(true);
+  } else {
+    console.warn("No enquiry found for this ID!");
+  }
+};
+
+
+
+
+
+const handleDelete = async (id: string) => {
+  const confirmDelete = confirm("Are you sure you want to delete this enquiry?");
+  if (!confirmDelete) {
+    console.log("Deletion cancelled by user");
+    return;
+  }
+
+  console.log("Attempting to delete enquiry with ID:", id);
+
+  const { error } = await supabase.from("enquiries").delete().eq("id", id);
+
+  if (error) {
+    console.error("Failed to delete enquiry:", error.message);
+  } else {
+    setEnquiries(prev => prev.filter(e => e.id !== id));
+    console.log("Enquiry deleted successfully!");
+  }
+};
+
+
+const handleUpdateEnquiry = async (updatedData: any) => {
+  if (!selectedEnquiry) return;
+
+  const { error } = await supabase
+    .from("enquiries")
+    .update(updatedData)
+    .eq("id", selectedEnquiry.id);
+
+  if (error) {
+    alert("Failed to update enquiry: " + error.message);
+  } else {
+    alert("Enquiry updated successfully!");
+    fetchEnquiries();
+    setShowEditForm(false);
+  }
+};
+
 
 const filteredBuyEnquiries = enquiries.filter(e => e.listing_type === "buy");
 const filteredSellEnquiries = enquiries.filter(e => e.listing_type === "sell");
@@ -265,8 +316,8 @@ const filteredSellEnquiries = enquiries.filter(e => e.listing_type === "sell");
               <EnquiryCard
                 key={enquiry.id}
                 {...enquiry}
-                onEdit={(id) => console.log("Edit enquiry:", id)}
-                onDelete={(id) => console.log("Delete enquiry:", id)}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
                 onCall={(mobile) => console.log("Call:", mobile)}
               />
             ))}
@@ -279,8 +330,8 @@ const filteredSellEnquiries = enquiries.filter(e => e.listing_type === "sell");
               <EnquiryCard
                 key={enquiry.id}
                 {...enquiry}
-                onEdit={(id) => console.log("Edit enquiry:", id)}
-                onDelete={(id) => console.log("Delete enquiry:", id)}
+                onEdit={handleEdit}
+               onDelete={handleDelete}
                 onCall={(mobile) => console.log("Call:", mobile)}
               />
             ))}
@@ -293,7 +344,7 @@ const filteredSellEnquiries = enquiries.filter(e => e.listing_type === "sell");
               <EnquiryCard
                 key={enquiry.id}
                 {...enquiry}
-                onEdit={(id) => console.log("Edit", id)}
+                onEdit={handleEdit}
                 onDelete={handleDelete}
                 onCall={(mobile) => console.log("Call", mobile)}
               />
@@ -313,6 +364,23 @@ const filteredSellEnquiries = enquiries.filter(e => e.listing_type === "sell");
           />
         </DialogContent>
       </Dialog>
+
+<Dialog open={showEditForm} onOpenChange={setShowEditForm}>
+  <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+    <DialogHeader>
+      <DialogTitle>Edit Enquiry</DialogTitle>
+    </DialogHeader>
+    {selectedEnquiry && (
+      <EnquiryForm
+        defaultValues={selectedEnquiry}
+        onSubmit={handleUpdateEnquiry}
+        onCancel={() => setShowEditForm(false)}
+      />
+    )}
+  </DialogContent>
+</Dialog>
+
+
     </div>
   );
 }

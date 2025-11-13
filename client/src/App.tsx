@@ -1,10 +1,10 @@
 import { Switch, Route } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
-import { Toaster } from "@/components/ui/toaster";
+
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Menu } from "lucide-react";
-import Login from "@/pages/Login";
+import Logi from "@/pages/Login";
 import Dashboard from "@/pages/Dashboard";
 import Properties from "@/pages/Properties";
 import Enquiries from "@/pages/Enquiries";
@@ -17,7 +17,10 @@ import AppHeader from "@/components/AppHeader";
 import BottomNav from "@/components/BottomNav";
 import { Link } from "react-router-dom";
 import React, { useEffect } from "react";
-import AuthCallbackPage from "@/pages/AuthCallbackPage";
+import AuthCallbackPage from "@/pages/AuthCallbackPage";  
+import Login from "@/pages/Login";
+import { Toaster } from "react-hot-toast";
+
 
 function Router() {
   return (
@@ -54,6 +57,8 @@ function Router() {
         </AppLayout>
       </Route>
       <Route path="/auth/callback" component={AuthCallbackPage} />
+      
+
     </Switch>
   );
 }
@@ -61,6 +66,7 @@ function Router() {
 
 import { useState } from "react";
 import Sidebar from "./pages/Sidebar";
+import Loginn from "@/pages/Login";
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -82,10 +88,11 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
             <Link
               to="/"
               onClick={() => setSidebarOpen(false)}
-              className="text-2xl font-bold text-blue-600 hover:text-blue-700 transition"
+              className="text-2xl font-bold text-primary hover:text-blue-700 transition"
             >
               Real Estate CRM
             </Link>
+            
           </div>
         }
         notificationCount={3}
@@ -128,7 +135,7 @@ export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <Toaster />
+        <Toaster  position="bottom-right" />
         <Router />
       </TooltipProvider>
     </QueryClientProvider>
