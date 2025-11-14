@@ -36,6 +36,29 @@ export default function ReminderCard({
 
   const isUpdating = updatingId === id;
 
+function convertTimeToIST(time: string) {
+  if (!time) return "—";
+
+  // Accept both "HH:mm" and "HH:mm:ss"
+  const [h, m] = time.split(":");
+
+  if (!h || !m) return "—";
+
+  let hours = parseInt(h, 10);
+  let minutes = parseInt(m, 10);
+
+  if (isNaN(hours) || isNaN(minutes)) return "—";
+
+  const ampm = hours >= 12 ? "PM" : "AM";
+  hours = hours % 12 || 12;
+
+  return `${hours}:${minutes.toString().padStart(2, "0")} ${ampm}`;
+}
+
+
+
+
+
   return (
     <Card className={status === "completed" ? "opacity-70" : ""}>
       <CardContent className="p-4">
@@ -59,12 +82,20 @@ export default function ReminderCard({
                 <User className="h-3 w-3" />
                 <span>{client_name}</span>
               </div>
-              <div className="flex items-center gap-2">
-                <Clock className="h-3 w-3" />
-                <span>
-                  {date} at {time}
-                </span>
-              </div>
+  <div className="flex items-center gap-2">
+  <Clock className="h-3 w-3" />
+  <span>
+    {(() => {
+      const converted = convertTimeToIST(time);
+      console.log("Converted Time =", converted);
+      console.log("Original Time =", time);
+      return `${date} at ${converted}`;
+    })()}
+  </span>
+</div>
+
+
+
             </div>
           </div>
 

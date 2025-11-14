@@ -262,19 +262,11 @@
 //   );
 // }
 
-
 import { useEffect, useState } from "react";
 import { useLocation } from "wouter";
 import StatCard from "@/components/StatCard";
 import QuickActionCard from "@/components/QuickActionCard";
-import {
-  Users,
-  Bell,
-  Home,
-  TrendingUp,
-  PlusCircle,
-  BarChart3,
-} from "lucide-react";
+import { Users, Bell, Home, PlusCircle } from "lucide-react";
 import { supabase } from "../supabaseClient";
 import {
   PieChart,
@@ -300,15 +292,14 @@ interface ChartData {
   month: string;
   enquiries: number;
   properties: number;
-  conversions: number;
+  reminders: number;
 }
 
 export default function Dashboard() {
   const [, setLocation] = useLocation();
- const [stats, setStats] = useState<Stat[]>([]);
-  const [monthlyData, setMonthlyData] = useState([]);
+  const [stats, setStats] = useState<Stat[]>([]);
+  const [monthlyData, setMonthlyData] = useState<ChartData[]>([]);
   const [loading, setLoading] = useState(true);
-  const [chartData, setChartData] = useState<ChartData[]>([]);
 
   // 🔹 1. Fetch user session (redirect if not logged in)
   useEffect(() => {
@@ -327,35 +318,49 @@ export default function Dashboard() {
   useEffect(() => {
     async function fetchStats() {
       setLoading(true);
-      const { count: enquiriesCount } = await supabase
+
+      const {
+        data: { user },
+        error: userError,
+      } = await supabase.auth.getUser();
+      if (userError || !user) {
+        console.error("User not authenticated", userError);
+        setLoading(false);
+        return;
+      }
+
+      const userId = user.id;
+
+      const { count: enquiriesCount, error } = await supabase
         .from("enquiries")
-        .select("*", { count: "exact" });
+        .select("id", { count: "exact" })
+        .eq("user_id", userId);
+
       const { count: remindersCount } = await supabase
         .from("reminders")
-        .select("*", { count: "exact" })
-        .eq("status", "pending");
+        .select("id", { count: "exact" })
+        .eq("status", "pending")
+        .eq("user_id", userId);
+
       const { count: propertiesCount } = await supabase
         .from("properties")
-        .select("*", { count: "exact" });
-      const { count: conversionsCount } = await supabase
-        .from("conversions")
-        .select("*", { count: "exact" });
+        .select("id", { count: "exact" });
 
       setStats([
         { title: "Total Enquiries", value: enquiriesCount || 0, icon: Users },
         { title: "Pending Reminders", value: remindersCount || 0, icon: Bell },
         { title: "Properties Listed", value: propertiesCount || 0, icon: Home },
-        { title: "Conversions", value: conversionsCount || 0, icon: TrendingUp },
       ]);
+
       setLoading(false);
     }
+
     fetchStats();
   }, []);
 
-  // 🔹 3. Fetch monthly trend data from Supabase
+  // 🔹 3. Fetch monthly trend data
   useEffect(() => {
     async function fetchMonthlyTrend() {
-      // Helper: aggregate counts by month
       const countByMonth = (rows) => {
         const counts = new Array(12).fill(0);
         rows.forEach((r) => {
@@ -366,36 +371,25 @@ export default function Dashboard() {
         return counts;
       };
 
-      const [enquiries, properties, conversions] = await Promise.all([
+      const [enquiries, properties, reminders] = await Promise.all([
         supabase.from("enquiries").select("created_at"),
         supabase.from("properties").select("created_at"),
-        supabase.from("conversions").select("created_at"),
+        supabase.from("reminders").select("created_at"),
       ]);
 
       const enquiryCounts = countByMonth(enquiries.data || []);
       const propertyCounts = countByMonth(properties.data || []);
-      const conversionCounts = countByMonth(conversions.data || []);
+      const reminderCounts = countByMonth(reminders.data || []);
 
       const months = [
-        "Jan",
-        "Feb",
-        "Mar",
-        "Apr",
-        "May",
-        "Jun",
-        "Jul",
-        "Aug",
-        "Sep",
-        "Oct",
-        "Nov",
-        "Dec",
+        "Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec",
       ];
 
       const chartData = months.map((m, i) => ({
         month: m,
         Enquiries: enquiryCounts[i],
         Properties: propertyCounts[i],
-        Conversions: conversionCounts[i],
+        Reminders: reminderCounts[i],
       }));
 
       setMonthlyData(chartData);
@@ -411,7 +405,7 @@ export default function Dashboard() {
     name: s.title,
     value: typeof s.value === "number" ? s.value : 0,
   }));
-  const COLORS = ["#8884d8", "#82ca9d", "#ffc658", "#ff8042"];
+  const COLORS = ["#8884d8", "#82ca9d", "#ffc658"];
 
   return (
     <div className="space-y-8 p-4">
@@ -419,7 +413,7 @@ export default function Dashboard() {
       <p className="text-muted-foreground mb-4">Welcome back! Here's your overview</p>
 
       {/* 🟩 STAT CARDS */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {stats.map((stat, i) => (
           <StatCard key={i} title={stat.title} value={stat.value} icon={stat.icon} />
         ))}
@@ -445,7 +439,7 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* LINE CHART (Dynamic Monthly Trend) */}
+        {/* LINE CHART (Monthly Trend) */}
         <div className="bg-white dark:bg-gray-900 rounded-xl shadow p-4 lg:col-span-2">
           <h3 className="text-lg font-semibold mb-4 text-center">Monthly Trends</h3>
           <div className="h-72">
@@ -457,14 +451,15 @@ export default function Dashboard() {
                 <Tooltip />
                 <Legend />
                 <Line type="monotone" dataKey="Enquiries" stroke="#8884d8" strokeWidth={2} />
-                <Line type="monotone" dataKey="Properties" stroke="#82ca9d" strokeWidth={2} />
-                <Line type="monotone" dataKey="Conversions" stroke="#ffc658" strokeWidth={2} />
+                <Line type="monotone" dataKey="Reminders" stroke="#82ca9d" strokeWidth={2} />
+                <Line type="monotone" dataKey="Properties" stroke="#ffc658" strokeWidth={2} />
               </LineChart>
             </ResponsiveContainer>
           </div>
         </div>
       </div>
 
+      {/* QUICK ACTIONS */}
       <div>
         <h3 className="text-lg font-semibold mb-4">Quick Actions</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -491,12 +486,6 @@ export default function Dashboard() {
             description="Add a new property listing"
             icon={PlusCircle}
             onClick={() => setLocation("/properties")}
-          />
-          <QuickActionCard
-            title="View Reports"
-            description="Check productivity analytics"
-            icon={BarChart3}
-            onClick={() => setLocation("/reports")}
           />
         </div>
       </div>

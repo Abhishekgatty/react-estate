@@ -14,7 +14,6 @@
 // import cottage from "@assets/generated_images/Cozy_cottage_exterior_644fce70.png";
 // import commercial from "@assets/generated_images/Commercial_office_building_d56401ae.png";
 
-
 // const mockProperties = [
 //   {
 //     id: "1",
@@ -100,7 +99,7 @@
 
 //   return (
 //     <div className="space-y-6">
- 
+
 //       <div className="flex items-center justify-between gap-4 flex-wrap">
 //         <div>
 //          <h2 className="text-2xl md:text-3xl font-bold text-primary">Properties</h2>
@@ -175,7 +174,6 @@
 //     </div>
 //   );
 // }
-
 
 // import { useState, useEffect } from "react";
 // import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -316,7 +314,6 @@
 
 
 
-
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -324,8 +321,16 @@ import { Plus } from "lucide-react";
 import PropertyCard from "@/components/PropertyCard";
 import PropertyList, { Property } from "@/components/PropertyFilter";
 import AddPropertyForm from "@/components/AddPropertyForm";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { supabase } from "@/supabaseClient";
+import ViewPropertyModal from "./ViewPropertyModal";
+import { useNavigate } from "react-router-dom";
+import { toast } from 'react-toastify';
 
 interface PropertyCardProps {
   id: string;
@@ -347,74 +352,75 @@ export default function Properties() {
   const [activeTab, setActiveTab] = useState("all");
   const [filteredProperties, setFilteredProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
-const [showEditForm, setShowEditForm] = useState(false);
-
+  const [selectedProperty, setSelectedProperty] = useState<Property | null>(
+    null
+  );
+  const [showEditForm, setShowEditForm] = useState(false);
+  const [viewProperty, setViewProperty] = useState<Property | null>(null);
+  const [showViewModal, setShowViewModal] = useState(false);
+  const navigate = useNavigate();
 
   // ✅ Edit property handler
 
-const handleEdit = (id: string) => {
-  console.log("Editing property ID:", id);
-  console.log("Available property IDs:", filteredProperties.map(p => p.id));
+  const handleEdit = (id: string) => {
+    console.log("Editing property ID:", id);
+    console.log(
+      "Available property IDs:",
+      filteredProperties.map((p) => p.id)
+    );
 
-  const property = filteredProperties.find((p) => p.id === id);
-  console.log("Matched property:", property);
+    const property = filteredProperties.find((p) => p.id === id);
+    console.log("Matched property:", property);
 
-  if (property) {
-    setSelectedProperty(property); // same as setSelectedEnquiry
-    setShowEditForm(true);         // show the edit form/modal
-  } else {
-    console.warn("No property found for this ID!");
-  }
-};
+    if (property) {
+      setSelectedProperty(property); // same as setSelectedEnquiry
+      setShowEditForm(true); // show the edit form/modal
+    } else {
+      console.warn("No property found for this ID!");
+    }
+  };
 
-// ✅ Delete property handler
-const handleDelete = async (id: string) => {
-  if (!confirm("Are you sure you want to delete this property?")) return;
+  // ✅ Delete property handler
+  const handleDelete = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this property?")) return;
 
-  const { error } = await supabase.from("properties").delete().eq("id", id);
+    const { error } = await supabase.from("properties").delete().eq("id", id);
 
-  if (error) {
-    console.error("Error deleting property:", error);
-  } else {
-    alert("Property deleted successfully!");
-    setFilteredProperties((prev) => prev.filter((p) => p.id !== id));
-  }
-};
-
+    if (error) {
+      console.error("Error deleting property:", error);
+      toast.error("Failed to delete property!");
+    } else {
+      alert("Property deleted successfully!");
+        toast.success("Property deleted successfully!");
+      setFilteredProperties((prev) => prev.filter((p) => p.id !== id));
+    }
+  };
 
   // Receive filtered data from PropertyList
-const handleFiltered = (data: Property[]) => {
-  const normalized = data.map((p) => ({
-    ...p,
-    listing_type: (p.listing_type || "").trim().toLowerCase(), // "rent" or "sale"
-  }));
+  const handleFiltered = (data: Property[]) => {
+    const normalized = data.map((p) => ({
+      ...p,
+      listing_type: (p.listing_type || "").trim().toLowerCase(), // "rent" or "sale"
+    }));
 
-  console.log("Filtered data from PropertyList:", data);
-  console.log("Normalized data:", normalized);
+    console.log("Filtered data from PropertyList:", data);
+    console.log("Normalized data:", normalized);
 
-  setFilteredProperties(normalized);
-  setLoading(false);
-};
-
-
-
+    setFilteredProperties(normalized);
+    setLoading(false);
+  };
 
   // Tab-specific lists using listing_type
-// "Buy" tab = properties for sale
-// "Buy" tab = properties for sale
-const buyProperties = filteredProperties.filter(
-  (p) => p.listing_type === "for sale"
-);
+  // "Buy" tab = properties for sale
+  // "Buy" tab = properties for sale
+  const buyProperties = filteredProperties.filter(
+    (p) => p.listing_type === "for sale"
+  );
 
-// "Rent" tab = properties for rent
-const sellProperties = filteredProperties.filter(
-  (p) => p.listing_type === "for rent"
-);
-
-
-
-
+  // "Rent" tab = properties for rent
+  const sellProperties = filteredProperties.filter(
+    (p) => p.listing_type === "for rent"
+  );
 
   const handleAddProperty = (data: any) => {
     console.log("Property added:", data);
@@ -424,7 +430,8 @@ const sellProperties = filteredProperties.filter(
   // Map Property to PropertyCardProps
   const mapToCardProps = (property: Property): PropertyCardProps => ({
     id: property.id,
-     images: property.images || ["/placeholder.png"],
+    user_id: property.user_id,
+    images: property.images || ["/placeholder.png"],
     title: property.title,
     location: property.location,
     price: `₹ ${property.price?.toLocaleString() || "N/A"}`,
@@ -438,11 +445,38 @@ const sellProperties = filteredProperties.filter(
     bathrooms: property.bathrooms,
     listing_type: property.listing_type,
     area: property.area_sqft,
-    onView: (id) => console.log("View property:", id),
+
+    onView: (id) => navigate(`/properties/view/${id}`),
     onContact: (id) => console.log("Contact for property:", id),
-     onEdit: handleEdit, // ✅ Add this
-  onDelete: handleDelete, // ✅ Add this
+    onEdit: handleEdit, // ✅ Add this
+    onDelete: handleDelete, // ✅ Add this
   });
+
+  const handleView = async (id: string) => {
+    console.log("handleView called with ID:", id);
+
+    if (!id) {
+      console.warn("No ID provided to handleView!");
+      return;
+    }
+
+    const { data, error } = await supabase
+      .from("properties")
+      .select("*")
+      .eq("id", id)
+      .single();
+
+    console.log("Supabase response:", { data, error });
+
+    if (error) {
+      console.error("Error fetching property:", error);
+      return;
+    }
+
+    console.log("Property fetched successfully:", data);
+    setViewProperty(data); // store the property details
+    setShowViewModal(true); // open the modal
+  };
 
   return (
     <div className="space-y-6">
@@ -456,7 +490,10 @@ const sellProperties = filteredProperties.filter(
             Browse and manage property listings
           </p>
         </div>
-        <Button onClick={() => setShowAddForm(true)} data-testid="button-add-property">
+        <Button
+          onClick={() => setShowAddForm(true)}
+          data-testid="button-add-property"
+        >
           <Plus className="h-4 w-4 mr-2" />
           Add Property
         </Button>
@@ -529,33 +566,32 @@ const sellProperties = filteredProperties.filter(
       </Dialog>
 
       <Dialog open={showEditForm} onOpenChange={setShowEditForm}>
-  <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-    <DialogHeader>
-      <DialogTitle>Edit Property</DialogTitle>
-    </DialogHeader>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Edit Property</DialogTitle>
+          </DialogHeader>
 
-    {selectedProperty && (
-      <AddPropertyForm
-        property={selectedProperty} // prefill form with selected property
-        onSubmit={(updatedData) => {
-          // Update the list of properties after edit
-          setFilteredProperties((prev) =>
-            prev.map((p) =>
-              p.id === selectedProperty.id ? { ...p, ...updatedData } : p
-            )
-          );
-          setShowEditForm(false);
-          setSelectedProperty(null);
-        }}
-        onCancel={() => {
-          setShowEditForm(false);
-          setSelectedProperty(null);
-        }}
-      />
-    )}
-  </DialogContent>
-</Dialog>
-
+          {selectedProperty && (
+            <AddPropertyForm
+              property={selectedProperty} // prefill form with selected property
+              onSubmit={(updatedData) => {
+                // Update the list of properties after edit
+                setFilteredProperties((prev) =>
+                  prev.map((p) =>
+                    p.id === selectedProperty.id ? { ...p, ...updatedData } : p
+                  )
+                );
+                setShowEditForm(false);
+                setSelectedProperty(null);
+              }}
+              onCancel={() => {
+                setShowEditForm(false);
+                setSelectedProperty(null);
+              }}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

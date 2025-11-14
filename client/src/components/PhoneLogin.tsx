@@ -43,9 +43,9 @@
 //                 className="text-base"
 //               />
 //             </div>
-//             <Button 
-//               type="submit" 
-//               className="w-full" 
+//             <Button
+//               type="submit"
+//               className="w-full"
 //               size="lg"
 //               disabled={phoneNumber.length < 10}
 //               data-testid="button-send-otp"
@@ -58,8 +58,6 @@
 //     </div>
 //   );
 // }
-
-
 
 // import { useState } from "react";
 // import { Button } from "@/components/ui/button";
@@ -98,7 +96,6 @@
 //   }
 // };
 
-
 //   return (
 //     <div className="min-h-screen flex items-center justify-center bg-background p-4">
 //       <Card className="w-full max-w-md">
@@ -135,6 +132,167 @@
 
 
 
+
+
+// import { useState } from "react";
+// import { Button } from "@/components/ui/button";
+// import { Input } from "@/components/ui/input";
+// import { Label } from "@/components/ui/label";
+// import {
+//   Card,
+//   CardContent,
+//   CardDescription,
+//   CardHeader,
+//   CardTitle,
+// } from "@/components/ui/card";
+// import { Mail } from "lucide-react";
+// import { supabase } from "../supabaseClient";
+// import toast, { Toaster } from "react-hot-toast";
+
+// export default function AuthForm() {
+//   const [email, setEmail] = useState("");
+//   const [password, setPassword] = useState("");
+//   const [mode, setMode] = useState<"login" | "register">("login");
+//   const [loading, setLoading] = useState(false);
+
+//   const handleSubmit = async (e: React.FormEvent) => {
+//     e.preventDefault();
+
+//     if (!email.trim() || !password.trim()) {
+//       toast.error("Please enter email and password");
+//       return;
+//     }
+
+//     setLoading(true);
+
+//     try {
+//       if (mode === "register") {
+//         // Register user and send confirmation email
+//         const { error } = await supabase.auth.signUp({
+//           email: email.trim(),
+//           password,
+//           options: {
+//             emailRedirectTo: "http://localhost:5000/auth/callback", // Redirect after email confirmation
+//           },
+//         });
+
+//         if (error) {
+//           toast.error(error.message);
+//         } else {
+//           toast.success(
+//             "✅ Registration successful! Check your email for confirmation link."
+//           );
+//           setMode("login"); // Switch to login form
+//         }
+//       } else {
+//         // Login user
+//         const { data, error } = await supabase.auth.signInWithPassword({
+//           email: email.trim(),
+//           password,
+//         });
+
+//         if (error) {
+//           if (error.message.includes("email not confirmed")) {
+//             toast.error(
+//               "⚠️ Please confirm your email first. Check your inbox."
+//             );
+//           } else {
+//             toast.error(error.message);
+//           }
+//         } else {
+//           toast.success("✅ Login successful!");
+//           console.log("User:", data.user);
+//           // Redirect to dashboard or home page
+//           window.location.href = "/"; // change to your dashboard page
+//         }
+//       }
+//     } catch (err: any) {
+//       toast.error("Something went wrong. Try again.");
+//       console.error(err);
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   return (
+//     <div className="min-h-screen flex items-center justify-center bg-background p-4 ">
+//       <Toaster position="top-right" />
+
+//       <Card className="w-full max-w-md bg-white">
+//         <CardHeader className="space-y-2 text-center">
+//           <img
+//             src="/ordoo.png"
+//             alt="Logo"
+//             className="h-13 w-13 object-contain mx-auto"
+//           />
+
+//           <CardTitle className="text-2xl">
+//             {mode === "login" ? "Login" : "Register"}
+//           </CardTitle>
+
+//           <CardDescription>
+//             Enter your email and password to continue
+//           </CardDescription>
+//         </CardHeader>
+
+//         <CardContent>
+//           <form onSubmit={handleSubmit} className="space-y-4">
+//             <div className="space-y-2">
+//               <Label htmlFor="email">Email Address</Label>
+//               <Input
+//                 id="email"
+//                 type="email"
+//                 placeholder="you@example.com"
+//                 value={email}
+//                 onChange={(e) => setEmail(e.target.value)}
+//               />
+//             </div>
+
+//             <div className="space-y-2">
+//               <Label htmlFor="password">Password</Label>
+//               <Input
+//                 id="password"
+//                 type="password"
+//                 placeholder="********"
+//                 value={password}
+//                 onChange={(e) => setPassword(e.target.value)}
+//               />
+//             </div>
+
+//             <Button
+//               type="submit"
+//               className="w-full"
+//               size="lg"
+//               disabled={loading}
+//             >
+//               {loading
+//                 ? "Processing..."
+//                 : mode === "login"
+//                 ? "Login"
+//                 : "Register"}
+//             </Button>
+//           </form>
+
+//           <p className="mt-4 text-center text-sm text-muted-foreground">
+//             {mode === "login"
+//               ? "Don't have an account?"
+//               : "Already have an account?"}{" "}
+//             <button
+//               className="text-blue-600 hover:underline"
+//               onClick={() => setMode(mode === "login" ? "register" : "login")}
+//             >
+//               {mode === "login" ? "Register" : "Login"}
+//             </button>
+//           </p>
+//         </CardContent>
+//       </Card>
+//     </div>
+//   );
+// }
+
+
+
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -146,7 +304,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Mail } from "lucide-react";
 import { supabase } from "../supabaseClient";
 import toast, { Toaster } from "react-hot-toast";
 
@@ -156,6 +313,7 @@ export default function AuthForm() {
   const [mode, setMode] = useState<"login" | "register">("login");
   const [loading, setLoading] = useState(false);
 
+  // ---------------------- HANDLE LOGIN / REGISTER ----------------------
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -168,22 +326,19 @@ export default function AuthForm() {
 
     try {
       if (mode === "register") {
-        // Register user and send confirmation email
+        // Register user
         const { error } = await supabase.auth.signUp({
           email: email.trim(),
           password,
           options: {
-            emailRedirectTo: "http://localhost:5000/auth/callback", // Redirect after email confirmation
+            emailRedirectTo: "http://localhost:5000/auth/callback",
           },
         });
 
-        if (error) {
-          toast.error(error.message);
-        } else {
-          toast.success(
-            "✅ Registration successful! Check your email for confirmation link."
-          );
-          setMode("login"); // Switch to login form
+        if (error) toast.error(error.message);
+        else {
+          toast.success("Registration successful! Check your email.");
+          setMode("login");
         }
       } else {
         // Login user
@@ -193,40 +348,52 @@ export default function AuthForm() {
         });
 
         if (error) {
-          if (error.message.includes("email not confirmed")) {
-            toast.error(
-              "⚠️ Please confirm your email first. Check your inbox."
-            );
-          } else {
-            toast.error(error.message);
-          }
+          toast.error(error.message);
         } else {
-          toast.success("✅ Login successful!");
-          console.log("User:", data.user);
-          // Redirect to dashboard or home page
-          window.location.href = "/"; // change to your dashboard page
+          toast.success("Login successful!");
+          window.location.href = "/";
         }
       }
     } catch (err: any) {
-      toast.error("Something went wrong. Try again.");
+      toast.error("Something went wrong.");
       console.error(err);
     } finally {
       setLoading(false);
     }
   };
 
+  // ---------------------- HANDLE FORGOT PASSWORD ----------------------
+  const handleForgotPassword = async () => {
+    if (!email.trim()) {
+      toast.error("Enter your email first");
+      return;
+    }
+
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: "http://localhost:5000/reset-password", // your reset page
+    });
+
+    if (error) toast.error(error.message);
+    else toast.success("Reset link sent! Check your inbox.");
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <Toaster position="top-right" />
 
-      <Card className="w-full max-w-md">
+      <Card className="w-full max-w-md bg-white shadow-lg">
         <CardHeader className="space-y-2 text-center">
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary">
-            <Mail className="h-8 w-8 text-primary-foreground" />
-          </div>
-          <CardTitle className="text-2xl">
+          {/* Centered Logo */}
+          <img
+            src="/ordoo.png"
+            alt="Logo"
+            className="h-13 w-13 mx-auto object-contain"
+          />
+
+          <CardTitle className="text-2xl font-semibold">
             {mode === "login" ? "Login" : "Register"}
           </CardTitle>
+
           <CardDescription>
             Enter your email and password to continue
           </CardDescription>
@@ -235,9 +402,8 @@ export default function AuthForm() {
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email">Email Address</Label>
+              <Label>Email Address</Label>
               <Input
-                id="email"
                 type="email"
                 placeholder="you@example.com"
                 value={email}
@@ -246,9 +412,8 @@ export default function AuthForm() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <Label>Password</Label>
               <Input
-                id="password"
                 type="password"
                 placeholder="********"
                 value={password}
@@ -270,15 +435,26 @@ export default function AuthForm() {
             </Button>
           </form>
 
+          {/* Forgot Password (only show in login mode) */}
+          {mode === "login" && (
+            <p className="mt-3 text-center">
+              <button
+                onClick={handleForgotPassword}
+                className="text-blue-600 text-sm hover:underline"
+              >
+                Forgot Password?
+              </button>
+            </p>
+          )}
+
+          {/* Switch login/register */}
           <p className="mt-4 text-center text-sm text-muted-foreground">
             {mode === "login"
               ? "Don't have an account?"
               : "Already have an account?"}{" "}
             <button
               className="text-blue-600 hover:underline"
-              onClick={() =>
-                setMode(mode === "login" ? "register" : "login")
-              }
+              onClick={() => setMode(mode === "login" ? "register" : "login")}
             >
               {mode === "login" ? "Register" : "Login"}
             </button>

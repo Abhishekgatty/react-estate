@@ -381,7 +381,7 @@ const handleEdit = (id: string) => {
     setEditingReminder(reminder); // store it in state
     setFormData({
       title: reminder.title,
-    clientName: formData.clientName,
+    clientName: reminder.clientName,
       date: reminder.date,
       time: reminder.time,
       notes: reminder.notes || ""
@@ -516,16 +516,42 @@ const handleComplete = async (id: string) => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="time">Time *</Label>
-                <Input
-                  id="time"
-                  type="time"
-                  value={formData.time}
-                  onChange={(e) => setFormData({ ...formData, time: e.target.value })}
-                  required
-                  data-testid="input-time"
-                />
-              </div>
+  <Label htmlFor="time">Time *</Label>
+  <div className="grid grid-cols-2 gap-2">
+    
+    {/* Hours (00–23) */}
+    <select
+      className="border rounded px-2 py-2"
+      value={formData.time.split(":")[0] || ""}
+      onChange={(e) => {
+        const minute = formData.time.split(":")[1] || "00";
+        setFormData({ ...formData, time: `${e.target.value}:${minute}` });
+      }}
+    >
+      {Array.from({ length: 24 }, (_, i) => {
+        const hr = String(i).padStart(2, "0");
+        return <option key={hr} value={hr}>{hr}</option>;
+      })}
+    </select>
+
+    {/* Minutes (00–59) */}
+    <select
+      className="border rounded px-2 py-2"
+      value={formData.time.split(":")[1] || ""}
+      onChange={(e) => {
+        const hour = formData.time.split(":")[0] || "00";
+        setFormData({ ...formData, time: `${hour}:${e.target.value}` });
+      }}
+    >
+      {Array.from({ length: 60 }, (_, i) => {
+        const min = String(i).padStart(2, "0");
+        return <option key={min} value={min}>{min}</option>;
+      })}
+    </select>
+
+  </div>
+</div>
+
             </div>
 
             <div className="space-y-2">

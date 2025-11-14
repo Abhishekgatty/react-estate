@@ -161,9 +161,6 @@
 //   );
 // }
 
-
-
-
 // import { useState } from "react";
 // import { Button } from "@/components/ui/button";
 // import { Input } from "@/components/ui/input";
@@ -190,8 +187,6 @@
 //     sellingRate: "",
 //     remarks: ""
 //   });
-
-  
 
 //  const handleSubmit = async (e: React.FormEvent) => {
 //   e.preventDefault();
@@ -234,7 +229,6 @@
 //     alert("Something went wrong.");
 //   }
 // };
-
 
 //   const updateField = (field: string, value: string) => {
 //     setFormData(prev => ({ ...prev, [field]: value }));
@@ -370,6 +364,7 @@
 
 
 
+
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -430,29 +425,31 @@ export default function EnquiryForm({
 
     try {
       const { data: userData } = await supabase.auth.getUser();
-      const user_id = userData?.user?.id;
+       const userId = userData?.user?.id;
+      console.log("user iddddd", userId);
 
-      if (!user_id) {
+      if (!userId) {
         alert("Please log in.");
         return;
       }
 
       if (defaultValues?.id) {
-        // ✅ Update existing enquiry
         const { error } = await supabase
           .from("enquiries")
           .update({
             listing_type: enquiryType,
             date: formData.date,
             name: formData.name,
+            budget: formData.budget || null,
             referred_by: formData.referred_by,
             mobile_number: formData.mobile_number,
             location: formData.location,
             selling_rate: formData.selling_rate || null,
             remarks: formData.remarks || null,
-             updated_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
           })
-          .eq("id", defaultValues.id);
+          .eq("id", defaultValues.id)  // match enquiry
+          .eq("user_id", userId);  
 
         if (error) {
           console.error("Error updating enquiry:", error.message);
@@ -465,14 +462,16 @@ export default function EnquiryForm({
         // ✅ Create new enquiry
         const { error } = await supabase.from("enquiries").insert([
           {
-            user_id,
+            user_id: userId,  
             listing_type: enquiryType,
             date: formData.date,
             name: formData.name,
+             budget: enquiryType === "buy" ? formData.budget || null : null,
+            selling_rate: enquiryType === "sell" ? formData.selling_rate || null : null,
             referred_by: formData.referred_by,
             mobile_number: formData.mobile_number,
             location: formData.location,
-            selling_rate: formData.selling_rate || null,
+           
             remarks: formData.remarks || null,
             created_at: new Date().toISOString(),
           },
@@ -578,7 +577,7 @@ export default function EnquiryForm({
                 <Input
                   id="sellingRate"
                   value={formData.selling_rate}
-                  onChange={(e) => updateField("sellingRate", e.target.value)}
+                  onChange={(e) => updateField("selling_rate", e.target.value)}
                   placeholder="e.g., ₹15,00,000"
                 />
               </div>

@@ -318,24 +318,34 @@ export default function PropertyList({ onFiltered }: PropertyListProps) {
       {/* Search & Filters */}
       <div className="flex gap-2">
         <div className="relative flex-1 flex items-center gap-2">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search properties..."
-              value={filters.search}
-              onChange={(e) =>
-                setFilters({ ...filters, search: e.target.value })
-              }
-              className="pl-9"
-            />
-          </div>
-          <Button onClick={applyFilters} className="flex-none">
-            Search
-          </Button>
-          <Button onClick={resetFilters} className="flex-none">
-            Remove Filters
-          </Button>
-        </div>
+  <div className="relative flex-1">
+    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+    <Input
+      placeholder="Search properties..."
+      value={filters.search}
+      onChange={(e) => {
+        const value = e.target.value;
+        const updatedFilters = { ...filters, search: value };
+        setFilters(updatedFilters);
+
+        if (!value) {
+          // If input is empty, reset filters automatically
+          onFiltered(properties);
+        } else {
+          applyFilters(updatedFilters);
+        }
+      }}
+      className="pl-9"
+    />
+  </div>
+
+  {Object.values(filters).some((val) => val) && (
+    <Button onClick={resetFilters} className="flex-none">
+      Remove Filters
+    </Button>
+  )}
+</div>
+
 
         <Collapsible open={isFilterOpen} onOpenChange={setIsFilterOpen}>
           <CollapsibleTrigger asChild>
@@ -344,7 +354,7 @@ export default function PropertyList({ onFiltered }: PropertyListProps) {
               Filters
             </Button>
           </CollapsibleTrigger>
-          <CollapsibleContent className="absolute right-0 left-0 z-10 mt-2">
+          <CollapsibleContent className="absolute right-0 left-20 z-10 mt-2">
             <Card>
               <CardContent className="p-4 space-y-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
