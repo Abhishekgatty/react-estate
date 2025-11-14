@@ -72,9 +72,14 @@ app.use((req, res, next) => {
   // It is the only port that is not firewalled.
 const port = parseInt(process.env.PORT || "5000", 10);
 
-// ✅ Fix for Windows
-server.listen(port, "localhost", () => {
-  log(`✅ Server running at http://localhost:${port}`);
+server.listen(port, "0.0.0.0", () => {
+  log(`✅ Server running at http://0.0.0.0:${port}`);
 });
+
+
+// ✅ Fix for Windows
+// server.listen(port, "localhost", () => {
+//   log(`✅ Server running at http://localhost:${port}`);
+// });
 
 })();
