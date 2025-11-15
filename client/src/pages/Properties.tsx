@@ -517,7 +517,7 @@ export default function Properties() {
           ) : filteredProperties.length === 0 ? (
             <p>No properties found.</p>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {filteredProperties.map((property) => (
                 <PropertyCard key={property.id} {...mapToCardProps(property)} />
               ))}
@@ -530,7 +530,7 @@ export default function Properties() {
           {buyProperties.length === 0 ? (
             <p>No properties available for buying.</p>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {buyProperties.map((property) => (
                 <PropertyCard key={property.id} {...mapToCardProps(property)} />
               ))}
@@ -543,7 +543,7 @@ export default function Properties() {
           {sellProperties.length === 0 ? (
             <p>No properties available for selling.</p>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {sellProperties.map((property) => (
                 <PropertyCard key={property.id} {...mapToCardProps(property)} />
               ))}
